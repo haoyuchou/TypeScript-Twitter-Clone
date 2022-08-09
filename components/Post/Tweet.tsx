@@ -56,6 +56,9 @@ function Tweet(props: Props) {
       method: "POST",
     });
 
+    const refreshComment = await fetchComments(tweet._id);
+    setComments(refreshComment);
+
     //console.log("Yeahhhh, the message has been sent! ", result);
     toast.success("Comment Posted!", {
       id: commentToast,
@@ -63,7 +66,6 @@ function Tweet(props: Props) {
 
     setInput("");
     setAddCommentBoxOpen(false);
-    getComments();
   };
 
   return (
