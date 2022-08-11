@@ -32,3 +32,7 @@ export interface Comment extends CommentBody {
     type: "reference";
   };
 }
+
+export interface CommentDeleteBody extends CommentBody {
+  _id: string
+}

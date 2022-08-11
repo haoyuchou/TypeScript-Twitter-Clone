@@ -45,7 +45,7 @@ function Post(props: Props) {
       {/* Tweet */}
       <div>
         {tweets.map((tweet) => (
-          <TweetComponent key={tweet._id} tweet={tweet} />
+          <TweetComponent key={tweet._id} tweet={tweet} refresh={refreshTweets} />
         ))}
       </div>
     </div>

@@ -1,5 +1,6 @@
 import { createClient } from "next-sanity";
 
+
 export const config = {
   /**
    * Find your project ID and dataset in `sanity.json` in your studio project.
