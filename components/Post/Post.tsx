@@ -14,7 +14,7 @@ function Post(props: Props) {
   const { tweets: tweetsProps } = props;
   const [tweets, setTweets] = useState(tweetsProps);
 
-  console.log(tweets);
+  //console.log(tweets);
 
   const refreshTweets = async () => {
     const refreshToast = toast.loading("Refrshing...");

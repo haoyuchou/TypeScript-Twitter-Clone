@@ -119,11 +119,13 @@ function Tweet(props: Props) {
       return;
     } else {
       const tweetToast = toast.loading("Deleting tweets and its comments...");
+      
       const result = await fetchDeleteTweet(tweet._id);
-      toast.success("Tweet and its comments Deleted!", { id: tweetToast });
+      
 
       refresh();
       setTweetModalIsOpen(false);
+      toast.success("Tweet and its comments Deleted!", { id: tweetToast });
     }
   };
 
