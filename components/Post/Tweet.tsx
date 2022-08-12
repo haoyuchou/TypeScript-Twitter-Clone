@@ -43,7 +43,7 @@ function Tweet(props: Props) {
     const freshComments: Comment[] = await fetchComments(tweet._id);
     setComments(freshComments);
 
-    console.log("List of all comment for tweet", tweet._id, ": ", comments);
+    //console.log("List of all comment for tweet", tweet._id, ": ", comments);
   };
 
   useEffect(() => {
@@ -70,9 +70,6 @@ function Tweet(props: Props) {
       method: "POST",
     });
 
-    const refreshComment = await fetchComments(tweet._id);
-    setComments(refreshComment);
-
     //console.log("Yeahhhh, the message has been sent! ", result);
     toast.success("Comment Posted!", {
       id: commentToast,
@@ -80,6 +77,7 @@ function Tweet(props: Props) {
 
     setInput("");
     setAddCommentBoxOpen(false);
+    getComments();
   };
 
   const deleteCommentHandler = async (
@@ -105,10 +103,9 @@ function Tweet(props: Props) {
     }
 
     console.log("Time to fetch comments again");
-    const refreshComment = await fetchComments(tweet._id);
-    setComments(refreshComment);
 
     setCommentModalIsOpen(false);
+    getComments();
   };
 
   const deleteTweetHandler = async (
@@ -119,13 +116,13 @@ function Tweet(props: Props) {
       return;
     } else {
       const tweetToast = toast.loading("Deleting tweets and its comments...");
-      
-      const result = await fetchDeleteTweet(tweet._id);
-      
 
-      refresh();
-      setTweetModalIsOpen(false);
+      const result = await fetchDeleteTweet(tweet._id);
+
       toast.success("Tweet and its comments Deleted!", { id: tweetToast });
+      setTweetModalIsOpen(false);
+      refresh();
+      getComments();
     }
   };
 
@@ -156,7 +153,7 @@ function Tweet(props: Props) {
                 onClick={() => {
                   setTweetModalIsOpen(true);
                 }}
-                className="text-gray-400 h-6 w-6"
+                className="text-gray-400 h-6 w-6 cursor-pointer"
               />
               {tweetModalIsOpen && (
                 <Modal onClose={() => setTweetModalIsOpen(false)}>
@@ -263,7 +260,7 @@ function Tweet(props: Props) {
                         setCommentModalIsOpen(true);
                         setCurrentComment(comment);
                       }}
-                      className="text-gray-400 h-6 w-6"
+                      className="text-gray-400 h-6 w-6 cursor-pointer"
                     />
                     {commentModalIsOpen && currentComment?._id === comment._id && (
                       <Modal onClose={() => setCommentModalIsOpen(false)}>

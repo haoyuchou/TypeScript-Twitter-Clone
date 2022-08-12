@@ -8,16 +8,14 @@ import { fetchTweets } from "../lib/fetchTweets";
 import { Tweet } from "../typings";
 import { Toaster } from "react-hot-toast";
 
-
 interface Props {
   tweets: Tweet[];
 }
 
 const Home = ({ tweets }: Props) => {
   console.log(tweets);
-  console.log("twitter client id: ",process.env.TWITTER_CLIENT_ID);
+  //console.log("twitter client id: ",process.env.TWITTER_CLIENT_ID);
 
-  
   return (
     <div className="lg:max-w-6xl mx-auto overflow-hidden">
       <Head>
