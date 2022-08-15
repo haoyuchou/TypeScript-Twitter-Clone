@@ -149,6 +149,7 @@ function TweetComment(props: Props) {
               className="outline-none flex-grow"
               value={endEditedComment}
               onChange={(e) => setEndEditedComment(e.target.value)}
+              autoFocus
             />
             <button
               onClick={editCommentHandler}
