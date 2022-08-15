@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { CommentBody, CommentDeleteBody, Tweet } from "../../typings";
+import { CommentBody, Tweet } from "../../typings";
 import TimeAgo from "react-timeago";
 import {
   ChatAlt2Icon,
@@ -11,11 +11,11 @@ import {
 
 import { Comment } from "../../typings";
 import { fetchComments } from "../../lib/fetchComments";
-import { fetchDeleteComment } from "../../lib/fetchDeleteComment";
 import { useSession } from "next-auth/react";
 import toast from "react-hot-toast";
-import Modal, { BackDrop, ModalOverlay } from "../UI/Modal";
+import Modal from "../UI/Modal";
 import { fetchDeleteTweet } from "../../lib/fetchDeleteTweet";
+import TweetComment from "./TweetComment";
 
 interface Props {
   tweet: Tweet;
@@ -32,18 +32,18 @@ function Tweet(props: Props) {
   const [addCommentBoxOpen, setAddCommentBoxOpen] = useState<boolean>(false);
   const [input, setInput] = useState<string>("");
 
-  // comment modal
-  const [commentModalIsOpen, setCommentModalIsOpen] = useState<boolean>(false);
-  const [currentComment, setCurrentComment] = useState<Comment>();
-
-  // tweet modal
+  // tweet modal for delete
   const [tweetModalIsOpen, setTweetModalIsOpen] = useState<boolean>(false);
 
   const getComments = async () => {
     const freshComments: Comment[] = await fetchComments(tweet._id);
     setComments(freshComments);
-
-    //console.log("List of all comment for tweet", tweet._id, ": ", comments);
+    console.log(
+      "List of all comment for tweet",
+      tweet._id,
+      ": ",
+      freshComments
+    );
   };
 
   useEffect(() => {
@@ -77,34 +77,6 @@ function Tweet(props: Props) {
 
     setInput("");
     setAddCommentBoxOpen(false);
-    getComments();
-  };
-
-  const deleteCommentHandler = async (
-    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
-  ) => {
-    e.preventDefault();
-
-    // Only the user who post the comment can delete it
-    if (session?.user?.name !== currentComment?.username) {
-      console.log("You're not the author of this comment");
-      return;
-    } else {
-      const commentToast = toast.loading("Deleting Comment...");
-      //console.log("Current Comment: ", currentComment?._id);
-      const result = await fetchDeleteComment(
-        currentComment?._id || "randomId"
-      );
-
-      //console.log("Yeahhhh, the message has been sent! ", result);
-      toast.success("Comment Deleted!", {
-        id: commentToast,
-      });
-    }
-
-    console.log("Time to fetch comments again");
-
-    setCommentModalIsOpen(false);
     getComments();
   };
 
@@ -157,9 +129,9 @@ function Tweet(props: Props) {
               />
               {tweetModalIsOpen && (
                 <Modal onClose={() => setTweetModalIsOpen(false)}>
-                  <p className="text-black border-b border-gray-500 pb-1">
+                  <button className="text-black border-b border-gray-500 pb-1 cursor-pointer">
                     Edit
-                  </p>
+                  </button>
                   <button
                     onClick={deleteTweetHandler}
                     className="text-black border-b border-gray-400 pb-2 cursor-pointer"
@@ -208,7 +180,6 @@ function Tweet(props: Props) {
       </div>
 
       {/* Comments Section */}
-
       {/* Input new comment */}
       {addCommentBoxOpen && (
         <form onSubmit={submitHandler} className="mt-4 flex space-x-3">
@@ -233,54 +204,11 @@ function Tweet(props: Props) {
       {comments?.length > 0 && (
         <div className="my-2 mt-4 max-h-48 space-y-2 overflow-y-scroll border-t border-gray-100 p-4">
           {comments.map((comment) => (
-            <div key={comment._id} className="flex space-x-2">
-              <div>
-                <img
-                  src={comment.profileImg}
-                  alt="Profile Image"
-                  className="h-10 w-10 rounded-full object-cover mt-1"
-                />
-                <hr className="border-l border-t-0 border-[#00ADED]/30 w-2 h-8 ml-[1.25rem] mt-1" />
-              </div>
-
-              <div className="flex-grow">
-                <div className="flex items-center space-x-1">
-                  <p className="font-bold mr-1">{comment.username}</p>
-                  <p className="text-gray-500 hidden lg:inline">
-                    @{comment.username.replace(/\s+/g, "").toLowerCase()}
-                  </p>
-
-                  <TimeAgo
-                    date={comment._createdAt}
-                    className="text-sm text-gray-500 flex-grow"
-                  />
-                  <div className="relative">
-                    <DotsHorizontalIcon
-                      onClick={() => {
-                        setCommentModalIsOpen(true);
-                        setCurrentComment(comment);
-                      }}
-                      className="text-gray-400 h-6 w-6 cursor-pointer"
-                    />
-                    {commentModalIsOpen && currentComment?._id === comment._id && (
-                      <Modal onClose={() => setCommentModalIsOpen(false)}>
-                        <p className="text-black border-b border-gray-500 pb-1">
-                          Edit
-                        </p>
-                        <button
-                          onClick={deleteCommentHandler}
-                          className="text-black border-b border-gray-400 pb-2 cursor-pointer"
-                        >
-                          Delete
-                        </button>
-                      </Modal>
-                    )}
-                  </div>
-                </div>
-
-                <p className="">{comment.comment}</p>
-              </div>
-            </div>
+            <TweetComment
+              key={comment._id}
+              comment={comment}
+              getComments={getComments}
+            />
           ))}
         </div>
       )}

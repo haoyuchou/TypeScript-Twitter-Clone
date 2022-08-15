@@ -2,7 +2,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { sanityClient } from "../../sanity";
 import SanityClient from "@sanity/client";
-//import { MutationSelection } from "@sanity/types/src/mutations/types";
+
 import { fetchComments } from "../../lib/fetchComments";
 import { groq } from "next-sanity";
 import { Comment } from "../../typings";

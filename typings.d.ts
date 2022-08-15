@@ -34,5 +34,10 @@ export interface Comment extends CommentBody {
 }
 
 export interface CommentDeleteBody extends CommentBody {
-  _id: string
+  _id: string;
 }
+
+export type EditComment = {
+  commentId: string;
+  comment: string;
+};
