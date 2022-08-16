@@ -169,12 +169,12 @@ function TweetComment(props: Props) {
                 setWantToDeleteCommentModal(false);
                 setCommentModalIsOpen(true);
               }}
-              overlayClassname="z-50 rounded-xl shadow-xl fixed top-[200px] w-[30%] mx-auto h-40 bg-white"
+              overlayClassname="z-50 rounded-xl shadow-xl fixed top-[200px] w-[40%] mx-auto h-60 md:h-40 bg-white"
             >
               <p className="text-black text-center pt-6 font-bold text-lg mb-4">
                 Do you want to delete this comment?
               </p>
-              <div className="flex space-x-2">
+              <div className="flex space-x-2 place-content-center">
                 <button
                   onClick={deleteCommentHandler}
                   className="text-white bg-[#00ADED] rounded-md px-4 py-1"
@@ -195,10 +195,9 @@ function TweetComment(props: Props) {
           )}
         </div>
 
-        {!startEditComment && (
+        {!startEditComment ? (
           <p className="">{endEditedComment || comment.comment}</p>
-        )}
-        {startEditComment && (
+        ) : (
           <div className="flex items-center space-x-1 z-30">
             <input
               type="text"

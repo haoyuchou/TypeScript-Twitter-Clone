@@ -34,6 +34,8 @@ function Tweet(props: Props) {
 
   // tweet modal for delete
   const [tweetModalIsOpen, setTweetModalIsOpen] = useState<boolean>(false);
+  const [wantToDeleteTweetModal, setWantToDeleteTweetModal] =
+    useState<boolean>(false);
 
   const getComments = async () => {
     const freshComments: Comment[] = await fetchComments(tweet._id);
@@ -95,6 +97,7 @@ function Tweet(props: Props) {
 
       toast.success("Tweet and its comments Deleted!", { id: tweetToast });
       setTweetModalIsOpen(false);
+      setWantToDeleteTweetModal(false);
       refresh();
       getComments();
     }
@@ -139,7 +142,10 @@ function Tweet(props: Props) {
                     Edit
                   </button>
                   <button
-                    onClick={deleteTweetHandler}
+                    onClick={() => {
+                      setTweetModalIsOpen(false);
+                      setWantToDeleteTweetModal(true);
+                    }}
                     className="text-black border-b border-gray-400 pb-2 cursor-pointer"
                   >
                     Delete
@@ -159,6 +165,37 @@ function Tweet(props: Props) {
             />
           )}
         </div>
+        {wantToDeleteTweetModal && (
+          <Modal
+            className="bg-gray-100 bg-opacity-90 z-40"
+            onClose={() => {
+              setWantToDeleteTweetModal(false);
+              setTweetModalIsOpen(true);
+            }}
+            overlayClassname="z-50 rounded-xl shadow-xl fixed top-[200px] w-[40%] mx-auto h-60 md:h-40 bg-white"
+          >
+            <p className="text-black text-center pt-6 font-bold text-lg mb-4">
+              Do you want to delete this Tweet?
+            </p>
+            <div className="flex space-x-2 place-content-center">
+              <button
+                onClick={deleteTweetHandler}
+                className="text-white bg-[#00ADED] rounded-md px-4 py-1"
+              >
+                Yes
+              </button>
+              <button
+                onClick={() => {
+                  setWantToDeleteTweetModal(false);
+                  setTweetModalIsOpen(true);
+                }}
+                className="text-[#00ADED] bg-white rounded-md px-4 py-1"
+              >
+                No
+              </button>
+            </div>
+          </Modal>
+        )}
       </div>
 
       <div className="flex justify-between mt-4">

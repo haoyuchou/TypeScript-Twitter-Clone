@@ -31,7 +31,7 @@ function Modal({ onClose, children, className, overlayClassname }: Props) {
         className={`fixed top-0 left-0 h-screen w-screen overflow-hidden ${className}`}
         onClick={onClose}
       />
-      <div className={`${overlayClassname} p-3 overflow-hidden`}>
+      <div className={`${overlayClassname} p-3`}>
         <div className="p-0">{children}</div>
       </div>
     </Fragment>
