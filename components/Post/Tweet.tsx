@@ -16,6 +16,7 @@ import toast from "react-hot-toast";
 import Modal from "../UI/Modal";
 import { fetchDeleteTweet } from "../../lib/fetchDeleteTweet";
 import TweetComment from "./TweetComment";
+import TweetBottomIcon from "./TweetBottomIcon";
 
 interface Props {
   tweet: Tweet;
@@ -197,30 +198,13 @@ function Tweet(props: Props) {
           </Modal>
         )}
       </div>
-
-      <div className="flex justify-between mt-4">
-        <div
-          onClick={() => {
-            session && setAddCommentBoxOpen(!addCommentBoxOpen);
-          }}
-          className="flex items-center space-x-3 cursor-pointer text-gray-400"
-        >
-          <ChatAlt2Icon className="h-5 w-5" />
-          <p>{comments.length}</p>
-        </div>
-
-        <div className="flex items-center space-x-3 cursor-pointer text-gray-400">
-          <SwitchHorizontalIcon className="h-5 w-5" />
-        </div>
-
-        <div className="flex items-center space-x-3 cursor-pointer text-gray-400">
-          <HeartIcon className="h-5 w-5" />
-        </div>
-
-        <div className="flex items-center space-x-3 cursor-pointer text-gray-400">
-          <UploadIcon className="h-5 w-5" />
-        </div>
-      </div>
+      
+      <TweetBottomIcon
+        commentLength={comments.length}
+        onClick={() => {
+          session && setAddCommentBoxOpen(!addCommentBoxOpen);
+        }}
+      />
 
       {/* Comments Section */}
       {/* Input new comment */}
