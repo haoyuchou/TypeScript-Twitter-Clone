@@ -29,7 +29,7 @@ function TweetComment(props: Props) {
   const [beginEditedComment, setBeginEditedComment] = useState<string>(
     comment.comment
   );
-  const [endEditedComment, setEndEditedComment] = useState<string>("");
+  const [endEditedComment, setEndEditedComment] = useState<string>(beginEditedComment);
 
   const deleteCommentHandler = async (
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>
@@ -37,21 +37,15 @@ function TweetComment(props: Props) {
     e.preventDefault();
 
     // Only the user who post the comment can delete it
-    if (session?.user?.name !== currentComment?.username) {
-      console.log("You're not the author of this comment");
-      return;
-    } else {
-      const commentToast = toast.loading("Deleting Comment...");
-      //console.log("Current Comment: ", currentComment?._id);
-      const result = await fetchDeleteComment(
-        currentComment?._id || "randomId"
-      );
 
-      //console.log("Yeahhhh, the message has been sent! ", result);
-      toast.success("Comment Deleted!", {
-        id: commentToast,
-      });
-    }
+    const commentToast = toast.loading("Deleting Comment...");
+    //console.log("Current Comment: ", currentComment?._id);
+    const result = await fetchDeleteComment(currentComment?._id || "randomId");
+
+    //console.log("Yeahhhh, the message has been sent! ", result);
+    toast.success("Comment Deleted!", {
+      id: commentToast,
+    });
 
     console.log("Time to fetch comments again");
     setWantToDeleteCommentModal(false);
@@ -74,28 +68,25 @@ function TweetComment(props: Props) {
 
     // send put request for edited comment
     // editedComment
-    if (session?.user?.name !== currentComment?.username) {
-      return;
-    } else {
-      const comment: EditComment = {
-        commentId: currentComment?._id || "",
-        comment: endEditedComment,
-      };
-      console.log("Edit comment!");
-      const commentToast = toast.loading("Edit Comment...");
-      const result = await fetch(`/api/editComment`, {
-        body: JSON.stringify(comment),
-        method: "PUT",
-      });
 
-      // successfully edit comment
-      toast.success("Comment is edited!", { id: commentToast });
-      setStartEditComment(false);
+    const comment: EditComment = {
+      commentId: currentComment?._id || "",
+      comment: endEditedComment,
+    };
+    console.log("Edit comment!");
+    const commentToast = toast.loading("Edit Comment...");
+    const result = await fetch(`/api/editComment`, {
+      body: JSON.stringify(comment),
+      method: "PATCH",
+    });
 
-      console.log("set edit comment: ", endEditedComment);
-      setBeginEditedComment(endEditedComment);
-      getComments();
-    }
+    // successfully edit comment
+    toast.success("Comment is edited!", { id: commentToast });
+    setStartEditComment(false);
+
+    console.log("set edit comment: ", endEditedComment);
+    setBeginEditedComment(endEditedComment); // begin and end are the same now
+    getComments();
   };
 
   return (
@@ -138,19 +129,17 @@ function TweetComment(props: Props) {
                 onClose={() => setCommentModalIsOpen(false)}
               >
                 <button
+                  disabled={session?.user?.name !== currentComment?.username}
                   onClick={() => {
                     setStartEditComment(true);
                     setCommentModalIsOpen(false);
-                    setBeginEditedComment(
-                      endEditedComment || beginEditedComment
-                    ); // save the current comment value
-                    setEndEditedComment(beginEditedComment); // modification all made at this one
                   }}
                   className="text-black border-b border-gray-500 pb-1 cursor-pointer"
                 >
                   Edit
                 </button>
                 <button
+                  disabled={session?.user?.name !== currentComment?.username}
                   onClick={() => {
                     setWantToDeleteCommentModal(true);
                     setCommentModalIsOpen(false);
@@ -196,7 +185,7 @@ function TweetComment(props: Props) {
         </div>
 
         {!startEditComment ? (
-          <p className="">{endEditedComment || comment.comment}</p>
+          <p className="">{beginEditedComment}</p>
         ) : (
           <div className="flex items-center space-x-1 z-30">
             <input

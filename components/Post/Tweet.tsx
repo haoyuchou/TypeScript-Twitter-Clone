@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { CommentBody, Tweet } from "../../typings";
+import { CommentBody, EditTweet, Tweet } from "../../typings";
 import TimeAgo from "react-timeago";
 import {
   ChatAlt2Icon,
@@ -23,6 +23,11 @@ interface Props {
   refresh: () => Promise<void>;
 }
 
+interface editTweet {
+  tweet?: string;
+  image?: string;
+}
+
 function Tweet(props: Props) {
   const { tweet, refresh } = props;
   // one tweet include many comments
@@ -37,6 +42,15 @@ function Tweet(props: Props) {
   const [tweetModalIsOpen, setTweetModalIsOpen] = useState<boolean>(false);
   const [wantToDeleteTweetModal, setWantToDeleteTweetModal] =
     useState<boolean>(false);
+
+  // Start to edit tweet
+  const [startEditTweet, setStartEditTweet] = useState<boolean>(false);
+  const [beginEditedTweet, setBeginEditedTweet] = useState<editTweet>({
+    tweet: tweet.text,
+    image: tweet.image,
+  });
+  const [endEditedTweet, setEndEditedTweet] = useState<editTweet>(beginEditedTweet); // for tracking the edit input
+  const [image, setImage] = useState<string>("");
 
   const getComments = async () => {
     const freshComments: Comment[] = await fetchComments(tweet._id);
@@ -89,19 +103,41 @@ function Tweet(props: Props) {
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) => {
     e.preventDefault();
-    if (session?.user?.name !== tweet?.username) {
-      return;
-    } else {
-      const tweetToast = toast.loading("Deleting tweets and its comments...");
+    const tweetToast = toast.loading("Deleting tweets and its comments...");
 
-      const result = await fetchDeleteTweet(tweet._id);
+    const result = await fetchDeleteTweet(tweet._id);
 
-      toast.success("Tweet and its comments Deleted!", { id: tweetToast });
-      setTweetModalIsOpen(false);
-      setWantToDeleteTweetModal(false);
-      refresh();
-      getComments();
-    }
+    toast.success("Tweet and its comments Deleted!", { id: tweetToast });
+    setTweetModalIsOpen(false);
+    setWantToDeleteTweetModal(false);
+    refresh();
+    getComments();
+  };
+
+  const editTweetHandler = async (
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
+  ) => {
+    e.preventDefault();
+    // delete tweet
+    const data: EditTweet = {
+      tweetId: tweet._id,
+      text: endEditedTweet?.tweet || "",
+      image: endEditedTweet?.image || "",
+    };
+    const tweetEditToast = toast.loading("Edit Tweet...");
+    const result = await fetch(`/api/editTweet`, {
+      body: JSON.stringify(data),
+      method: "PATCH",
+    });
+    toast.success("Tweet is edited!", { id: tweetEditToast });
+
+    setStartEditTweet(false);
+    setBeginEditedTweet({
+      tweet: endEditedTweet?.tweet,
+      image: endEditedTweet?.image,
+    }); // start and end are the same
+    setImage("");
+    refresh();
   };
 
   return (
@@ -139,10 +175,18 @@ function Tweet(props: Props) {
                   overlayClassname="z-30 absolute top-3 right-6 shadow-lg rounded-lg text-sm bg-white"
                   onClose={() => setTweetModalIsOpen(false)}
                 >
-                  <button className="text-black border-b border-gray-500 pb-1 cursor-pointer">
+                  <button
+                    disabled={session?.user?.name !== tweet.username}
+                    onClick={() => {
+                      setStartEditTweet(true);
+                      setTweetModalIsOpen(false);
+                    }}
+                    className="text-black border-b border-gray-500 pb-1 cursor-pointer"
+                  >
                     Edit
                   </button>
                   <button
+                    disabled={session?.user?.name !== tweet.username}
                     onClick={() => {
                       setTweetModalIsOpen(false);
                       setWantToDeleteTweetModal(true);
@@ -155,17 +199,99 @@ function Tweet(props: Props) {
               )}
             </div>
           </div>
+          {/* Edit !!!!!! */}
+          {startEditTweet && (
+            <Modal
+              className="bg-gray-100 bg-opacity-90 z-40"
+              onClose={() => {
+                setStartEditTweet(false);
+                setEndEditedTweet({
+                  // didn't change tweet, so change end tweet back to begin tweet
+                  tweet: beginEditedTweet.tweet,
+                  image: beginEditedTweet.image,
+                });
+                setImage("");
+              }}
+              overlayClassname="z-50 rounded-xl shadow-xl fixed top-[200px] w-[45%] mx-auto h-70 md:h-50 bg-white"
+            >
+              <input
+                type="text"
+                className="text-black text-center px-3 font-bold text-lg py-2 outline-none w-full object-contain"
+                autoFocus
+                value={endEditedTweet?.tweet}
+                onChange={(e) =>
+                  setEndEditedTweet({
+                    tweet: e.target.value,
+                    image: endEditedTweet?.image,
+                  })
+                }
+              />
 
-          <p>{tweet.text}</p>
+              <div className="flex rounded-xl bg-[#00ADED]/80 px-4 py-2 mt-4 object-contain">
+                <input
+                  value={endEditedTweet?.image}
+                  autoFocus
+                  type="text"
+                  onChange={(e) =>
+                    setEndEditedTweet({
+                      tweet: endEditedTweet?.tweet,
+                      image: e.target.value,
+                    })
+                  }
+                  className="overflow-auto outline-none flex-grow bg-transparent p-2 text-white placeholder:text-white"
+                />
+                <button
+                  className="text-white font-semibold object-contain"
+                  type="submit"
+                  onClick={() => setImage(endEditedTweet?.image || "")}
+                >
+                  Add Image
+                </button>
+              </div>
+              {image && (
+                <img
+                  src={image}
+                  alt="tweet image"
+                  className="w-full h-40 object-contain rounded-xl shadow-md mt-8"
+                />
+              )}
+
+              <div className="flex space-x-2 place-content-center pt-3 object-contain">
+                <button
+                  onClick={editTweetHandler}
+                  className="text-white bg-[#00ADED] rounded-md px-4 py-1"
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={() => {
+                    setStartEditTweet(false);
+                    setEndEditedTweet({
+                      tweet: beginEditedTweet.tweet,
+                      image: beginEditedTweet.image,
+                    });
+                    setImage("");
+                  }}
+                  className="text-[#00ADED] bg-white rounded-md px-4 py-1"
+                >
+                  Cancel
+                </button>
+              </div>
+            </Modal>
+          )}
+
+          <p>{beginEditedTweet.tweet}</p>
 
           {tweet.image && (
             <img
-              src={tweet.image}
+              src={beginEditedTweet.image}
               alt="post image"
               className="m-4 ml-0 mb-1 max-h-60 object-cover shadow-md rounded-xl"
             />
           )}
         </div>
+
+        {/* Delete!!!!!!! */}
         {wantToDeleteTweetModal && (
           <Modal
             className="bg-gray-100 bg-opacity-90 z-40"
@@ -198,7 +324,7 @@ function Tweet(props: Props) {
           </Modal>
         )}
       </div>
-      
+
       <TweetBottomIcon
         commentLength={comments.length}
         onClick={() => {
@@ -207,7 +333,6 @@ function Tweet(props: Props) {
       />
 
       {/* Comments Section */}
-      {/* Input new comment */}
       {addCommentBoxOpen && (
         <form onSubmit={submitHandler} className="mt-4 flex space-x-3">
           <input

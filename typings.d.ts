@@ -41,3 +41,9 @@ export type EditComment = {
   commentId: string;
   comment: string;
 };
+
+export type EditTweet = {
+  tweetId: string;
+  text: string;
+  image: string;
+}
