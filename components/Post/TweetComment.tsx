@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Comment, EditComment } from "../../typings";
 import TimeAgo from "react-timeago";
 import { DotsHorizontalIcon } from "@heroicons/react/outline";
@@ -6,6 +6,8 @@ import Modal from "../UI/Modal";
 import toast from "react-hot-toast";
 import { useSession } from "next-auth/react";
 import { fetchDeleteComment } from "../../lib/fetchDeleteComment";
+
+// add the UI to ask whether user really want to delete the comment!
 
 interface Props {
   comment: Comment;
@@ -19,12 +21,15 @@ function TweetComment(props: Props) {
   // comment modal for delete and the current edit commnet
   const [commentModalIsOpen, setCommentModalIsOpen] = useState<boolean>(false);
   const [currentComment, setCurrentComment] = useState<Comment>();
+  const [wantToDeleteCommentModal, setWantToDeleteCommentModal] =
+    useState<boolean>(false);
 
   // Start to edit comment
   const [startEditComment, setStartEditComment] = useState<boolean>(false);
-  const [beginEditedComment, setBeginEditedComment] = useState<string>(comment.comment);
+  const [beginEditedComment, setBeginEditedComment] = useState<string>(
+    comment.comment
+  );
   const [endEditedComment, setEndEditedComment] = useState<string>("");
-  
 
   const deleteCommentHandler = async (
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>
@@ -49,10 +54,18 @@ function TweetComment(props: Props) {
     }
 
     console.log("Time to fetch comments again");
-
-    setCommentModalIsOpen(false);
+    setWantToDeleteCommentModal(false);
+    //setCommentModalIsOpen(false);
     getComments();
   };
+
+  useEffect(() => {
+    if (wantToDeleteCommentModal) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "scroll";
+    }
+  }, [wantToDeleteCommentModal]);
 
   const editCommentHandler = async (
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>
@@ -78,9 +91,9 @@ function TweetComment(props: Props) {
       // successfully edit comment
       toast.success("Comment is edited!", { id: commentToast });
       setStartEditComment(false);
-      
+
       console.log("set edit comment: ", endEditedComment);
-      setBeginEditedComment(endEditedComment)
+      setBeginEditedComment(endEditedComment);
       getComments();
     }
   };
@@ -108,20 +121,29 @@ function TweetComment(props: Props) {
             className="text-sm text-gray-500 flex-grow"
           />
           <div className="relative">
-            <DotsHorizontalIcon
+            <button
               onClick={() => {
                 setCommentModalIsOpen(true);
                 setCurrentComment(comment); // the whole comment object
               }}
-              className="text-gray-400 h-6 w-6 cursor-pointer"
-            />
+              disabled={startEditComment}
+            >
+              <DotsHorizontalIcon className="text-gray-400 h-6 w-6 cursor-pointer" />
+            </button>
+
             {commentModalIsOpen && currentComment?._id === comment._id && (
-              <Modal onClose={() => setCommentModalIsOpen(false)}>
+              <Modal
+                className="bg-transparent z-20"
+                overlayClassname="z-30 absolute top-3 right-6 shadow-lg rounded-lg text-sm bg-white"
+                onClose={() => setCommentModalIsOpen(false)}
+              >
                 <button
                   onClick={() => {
                     setStartEditComment(true);
                     setCommentModalIsOpen(false);
-                    setBeginEditedComment(endEditedComment || beginEditedComment); // save the current comment value
+                    setBeginEditedComment(
+                      endEditedComment || beginEditedComment
+                    ); // save the current comment value
                     setEndEditedComment(beginEditedComment); // modification all made at this one
                   }}
                   className="text-black border-b border-gray-500 pb-1 cursor-pointer"
@@ -129,7 +151,10 @@ function TweetComment(props: Props) {
                   Edit
                 </button>
                 <button
-                  onClick={deleteCommentHandler}
+                  onClick={() => {
+                    setWantToDeleteCommentModal(true);
+                    setCommentModalIsOpen(false);
+                  }}
                   className="text-black border-b border-gray-400 pb-2 cursor-pointer"
                 >
                   Delete
@@ -137,13 +162,44 @@ function TweetComment(props: Props) {
               </Modal>
             )}
           </div>
+          {wantToDeleteCommentModal && (
+            <Modal
+              className="bg-gray-100 bg-opacity-90 z-40"
+              onClose={() => {
+                setWantToDeleteCommentModal(false);
+                setCommentModalIsOpen(true);
+              }}
+              overlayClassname="z-50 rounded-xl shadow-xl fixed top-[200px] w-[30%] mx-auto h-40 bg-white"
+            >
+              <p className="text-black text-center pt-6 font-bold text-lg mb-4">
+                Do you want to delete this comment?
+              </p>
+              <div className="flex space-x-2">
+                <button
+                  onClick={deleteCommentHandler}
+                  className="text-white bg-[#00ADED] rounded-md px-4 py-1"
+                >
+                  Yes
+                </button>
+                <button
+                  onClick={() => {
+                    setWantToDeleteCommentModal(false);
+                    setCommentModalIsOpen(true);
+                  }}
+                  className="text-[#00ADED] bg-white rounded-md px-4 py-1"
+                >
+                  No
+                </button>
+              </div>
+            </Modal>
+          )}
         </div>
 
         {!startEditComment && (
           <p className="">{endEditedComment || comment.comment}</p>
         )}
         {startEditComment && (
-          <div className="flex items-center space-x-1">
+          <div className="flex items-center space-x-1 z-30">
             <input
               type="text"
               className="outline-none flex-grow"
@@ -160,7 +216,8 @@ function TweetComment(props: Props) {
             <button
               onClick={() => {
                 setStartEditComment(false);
-                setEndEditedComment(beginEditedComment); // not edit, change the value back to the begining
+                setEndEditedComment(beginEditedComment);
+                // not edit, change the value back to the begining edited comment
               }}
               className="text-[#00ADED] text-sm rounded-lg bg-gray-200 py-1 px-2"
             >

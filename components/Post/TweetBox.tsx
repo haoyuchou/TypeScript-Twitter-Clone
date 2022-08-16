@@ -59,6 +59,7 @@ function TweetBox({ setTweets }: Props) {
 
     const newTweets = await fetchTweets();
     setTweets(newTweets);
+    // if not fetch tweets again but add the new tweet to setTweets to update it?
 
     toast("Tweet Posted!", { icon: "🔥" });
 

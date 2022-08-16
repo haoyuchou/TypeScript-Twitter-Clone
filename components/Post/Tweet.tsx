@@ -78,6 +78,8 @@ function Tweet(props: Props) {
     setInput("");
     setAddCommentBoxOpen(false);
     getComments();
+
+    // if not using getComments but add the new comment to setComments to update it?
   };
 
   const deleteTweetHandler = async (
@@ -128,7 +130,11 @@ function Tweet(props: Props) {
                 className="text-gray-400 h-6 w-6 cursor-pointer"
               />
               {tweetModalIsOpen && (
-                <Modal onClose={() => setTweetModalIsOpen(false)}>
+                <Modal
+                  className="bg-transparent z-20"
+                  overlayClassname="z-30 absolute top-3 right-6 shadow-lg rounded-lg text-sm bg-white"
+                  onClose={() => setTweetModalIsOpen(false)}
+                >
                   <button className="text-black border-b border-gray-500 pb-1 cursor-pointer">
                     Edit
                   </button>

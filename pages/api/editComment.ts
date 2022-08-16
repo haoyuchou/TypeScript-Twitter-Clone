@@ -20,7 +20,6 @@ export default async function handler(
 ) {
   // post request
   const data: EditComment = JSON.parse(req.body);
-  console.log("Data: ", data);
 
   //const apiEndpoint = `https://${process.env.NEXT_PUBLIC_SANITY_PROJECT_ID}.api.sanity.io/v2021-10-21/data/mutate/${process.env.NEXT_PUBLIC_SANITY_DATASET}`;
   const result = client
