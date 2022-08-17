@@ -1,13 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { CommentBody, EditTweet, Tweet } from "../../typings";
 import TimeAgo from "react-timeago";
-import {
-  ChatAlt2Icon,
-  DotsHorizontalIcon,
-  HeartIcon,
-  SwitchHorizontalIcon,
-  UploadIcon,
-} from "@heroicons/react/outline";
+import { DotsHorizontalIcon } from "@heroicons/react/outline";
 
 import { Comment } from "../../typings";
 import { fetchComments } from "../../lib/fetchComments";
@@ -49,7 +43,8 @@ function Tweet(props: Props) {
     tweet: tweet.text,
     image: tweet.image,
   });
-  const [endEditedTweet, setEndEditedTweet] = useState<editTweet>(beginEditedTweet); // for tracking the edit input
+  const [endEditedTweet, setEndEditedTweet] =
+    useState<editTweet>(beginEditedTweet); // for tracking the edit input
   const [image, setImage] = useState<string>("");
 
   const getComments = async () => {
@@ -282,7 +277,7 @@ function Tweet(props: Props) {
 
           <p>{beginEditedTweet.tweet}</p>
 
-          {tweet.image && (
+          {beginEditedTweet.image && (
             <img
               src={beginEditedTweet.image}
               alt="post image"

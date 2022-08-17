@@ -20,7 +20,7 @@ export default async function handler(
 ) {
   // post request
   const data: EditTweet = JSON.parse(req.body);
-  console.log(data);
+  //console.log(data);
 
   //const apiEndpoint = `https://${process.env.NEXT_PUBLIC_SANITY_PROJECT_ID}.api.sanity.io/v2021-10-21/data/mutate/${process.env.NEXT_PUBLIC_SANITY_DATASET}`;
   const result = client
