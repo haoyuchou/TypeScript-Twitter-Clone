@@ -10,7 +10,7 @@ interface Props {
   suggestText: string;
 }
 
-function DeleteModal({ onClose, onYesClick, onNoClick, suggestText }: Props) {
+export function DeleteModal({ onClose, onYesClick, onNoClick, suggestText }: Props) {
   return (
     <Modal
       className="bg-gray-100 bg-opacity-90 z-40"
@@ -37,5 +37,3 @@ function DeleteModal({ onClose, onYesClick, onNoClick, suggestText }: Props) {
     </Modal>
   );
 }
-
-export default DeleteModal;

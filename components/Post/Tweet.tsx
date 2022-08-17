@@ -11,7 +11,7 @@ import Modal from "../UI/Modal";
 import { fetchDeleteTweet } from "../../lib/fetchDeleteTweet";
 import TweetComment from "./TweetComment";
 import TweetBottomIcon from "./TweetBottomIcon";
-import DeleteModal from "../UI/deleteModal";
+import {DeleteModal} from "../UI/DeleteModal";
 
 interface Props {
   tweet: Tweet;

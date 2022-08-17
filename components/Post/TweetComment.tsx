@@ -6,7 +6,7 @@ import Modal from "../UI/Modal";
 import toast from "react-hot-toast";
 import { useSession } from "next-auth/react";
 import { fetchDeleteComment } from "../../lib/fetchDeleteComment";
-import DeleteModal from "../UI/deleteModal";
+import { DeleteModal } from "../UI/DeleteModal";
 
 // add the UI to ask whether user really want to delete the comment!
 
