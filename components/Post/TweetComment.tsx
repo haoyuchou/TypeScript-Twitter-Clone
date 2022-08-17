@@ -6,6 +6,7 @@ import Modal from "../UI/Modal";
 import toast from "react-hot-toast";
 import { useSession } from "next-auth/react";
 import { fetchDeleteComment } from "../../lib/fetchDeleteComment";
+import DeleteModal from "../UI/deleteModal";
 
 // add the UI to ask whether user really want to delete the comment!
 
@@ -29,7 +30,8 @@ function TweetComment(props: Props) {
   const [beginEditedComment, setBeginEditedComment] = useState<string>(
     comment.comment
   );
-  const [endEditedComment, setEndEditedComment] = useState<string>(beginEditedComment);
+  const [endEditedComment, setEndEditedComment] =
+    useState<string>(beginEditedComment);
 
   const deleteCommentHandler = async (
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>
@@ -152,35 +154,18 @@ function TweetComment(props: Props) {
             )}
           </div>
           {wantToDeleteCommentModal && (
-            <Modal
-              className="bg-gray-100 bg-opacity-90 z-40"
+            <DeleteModal
+              suggestText="Do you want to delete this Comment?"
               onClose={() => {
                 setWantToDeleteCommentModal(false);
                 setCommentModalIsOpen(true);
               }}
-              overlayClassname="z-50 rounded-xl shadow-xl fixed top-[200px] w-[40%] mx-auto h-60 md:h-40 bg-white"
-            >
-              <p className="text-black text-center pt-6 font-bold text-lg mb-4">
-                Do you want to delete this comment?
-              </p>
-              <div className="flex space-x-2 place-content-center">
-                <button
-                  onClick={deleteCommentHandler}
-                  className="text-white bg-[#00ADED] rounded-md px-4 py-1"
-                >
-                  Yes
-                </button>
-                <button
-                  onClick={() => {
-                    setWantToDeleteCommentModal(false);
-                    setCommentModalIsOpen(true);
-                  }}
-                  className="text-[#00ADED] bg-white rounded-md px-4 py-1"
-                >
-                  No
-                </button>
-              </div>
-            </Modal>
+              onYesClick={deleteCommentHandler}
+              onNoClick={() => {
+                setWantToDeleteCommentModal(false);
+                setCommentModalIsOpen(true);
+              }}
+            />
           )}
         </div>
 
